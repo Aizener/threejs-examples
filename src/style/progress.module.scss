@@ -1,0 +1,51 @@
+.progress {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  padding: 2rem;
+  box-shadow: 0 0 5px #000;
+  border-radius: 0.5rem;
+  transform: translate(-50%, -50%);
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    background: #fff;
+    filter: blur(3px);
+  }
+  &-title {
+    color: #333;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  &-text {
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    position: relative;
+    z-index: 3;
+  }
+  &-inner {
+    background: linear-gradient(to right, green, rgb(6, 207, 6), #ccc);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    transition: width 0.5s;
+  }
+  &-box {
+    width: 200px;
+    height: 40px;
+    border-radius: 40px;
+    border: 2px solid #333;
+    background-color: #ccc;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+}

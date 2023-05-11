@@ -5,11 +5,11 @@ import { Outlet, useNavigate } from 'react-router-dom';
 
 function App() {
   const navigate = useNavigate();
-  const [count, setCount] = useState(0)
+  const [isToggle, setIsToggle] = useState(false);
 
   const dict = {
     '/': '首页',
-    '/full-view': '全景图',
+    '/full-view': '暂住小区全景图',
   }
 
   const renderMenuList = () => {
@@ -33,8 +33,13 @@ function App() {
 
   return (
     <div id="app">
-      <div className="menu">
+      <div className="menu" style={{ transform: `translateX(${isToggle ? 0 : '-100%'})`}}>
         { renderMenuList() }
+        <div className="menu-toggle-btn" onClick={() => setIsToggle(!isToggle)}>
+          <div className="line"></div>
+          <div className="line"></div>
+          <div className="line"></div>
+        </div>
       </div>
       <div className="container">
         <Outlet />
