@@ -1,5 +1,5 @@
-import React, { MutableRefObject, Ref, useCallback, useEffect, useRef, useState } from 'react'
-import { CubeTextureLoader, TextureLoader, Mesh, MeshBasicMaterial, SphereGeometry, BackSide, Sprite, SpriteMaterial, Raycaster, Vector2, Frustum, Matrix4, PointsMaterial, Points, Vector3, BufferAttribute, BufferGeometry, PlaneGeometry, Scene, PerspectiveCamera, WebGLRenderer, WebGLRenderTarget, MeshLambertMaterial, MeshNormalMaterial, AmbientLight, DirectionalLight, Box3, LoadingManager, Color, MathUtils } from 'three';
+import { MutableRefObject, useEffect, useRef } from 'react'
+import { CubeTextureLoader, Mesh, SphereGeometry, BackSide, Vector3, Scene, PerspectiveCamera, WebGLRenderer, MeshLambertMaterial, AmbientLight, LoadingManager, Color } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import style from '@/style/full-view.module.scss';
 import classNames from 'classnames/bind';
@@ -7,13 +7,9 @@ import gsap from 'gsap';
 import Stats from 'stats.js';
 import dat from 'dat.gui';
 import Progress from './Progress';
-import { CSS3DObject, CSS3DRenderer } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
 
 const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-document.body.appendChild(stats.dom);
-
-const gui = new dat.GUI();
 const params = {
   ambientColor: 0xffffff,
   directionalColor: 0xffffff,
@@ -36,13 +32,17 @@ export default function FullView() {
 
   const scene = useRef(new Scene());
   const camera = useRef(new PerspectiveCamera(75, aspectRatio, .1, 100));
-  camera.current.position.set(.4, .4, .4);
+  camera.current.position.set(0, .1, .4);
   
   const ambientLight = useRef(new AmbientLight(0xffffff, .7));
-  // gui.add(ambientLight.current, 'intensity').min(.1).max(1).step(.05).name('环境光');
-  // gui.addColor(params, 'ambientColor').onChange(() => {
-  //   ambientLight.current.color = new Color(params.ambientColor);
-  // }).name('环境光颜色');
+
+  const gui = useRef(new dat.GUI({
+    autoPlace: false,
+  }));
+  gui.current.add(ambientLight.current, 'intensity').min(.1).max(1).step(.05).name('环境光');
+  gui.current.addColor(params, 'ambientColor').onChange(() => {
+    ambientLight.current.color = new Color(params.ambientColor);
+  }).name('环境光颜色');
 
   scene.current.add(camera.current);
   scene.current.add(ambientLight.current);
@@ -90,8 +90,8 @@ export default function FullView() {
     _scene.userData = {
       isInit: !!textures,
     };
-    const cx = target.x + .3;
-    const cy = target.y + .4;
+    const cx = target.x;
+    const cy = target.y;
     const cz = target.z + .5;
     pointsMap.set(_scene, {
       camera: { x: cx, y: cy, z: cz },
@@ -101,37 +101,52 @@ export default function FullView() {
     totalScenes.current.push(_scene);
     return _scene;
   }
+  const getPublicPath = (paths: string[]) => {
+    return paths.map(path => {
+      return `/three-examples//images/${path}`;
+    });
+  }
 
-  const scene1 = useRef(loadScene({ target: { x: 0, y: 0, z: 0 }, textures: [
-    '/images/full-view/px.png',
-    '/images/full-view/nx.png',
-    '/images/full-view/ny.png',
-    '/images/full-view/py.png',
-    '/images/full-view/pz.png',
-    '/images/full-view/nz.png',
-  ] }));
+  const scene1 = useRef(loadScene({ target: { x: 0, y: 0, z: 0 } }));
   const currentScene = useRef<Mesh>(scene1.current);
+  assetMap.set(scene1.current, getPublicPath([
+    'full-view/gate/px.png',
+    'full-view/gate/nx.png',
+    'full-view/gate/ny.png',
+    'full-view/gate/py.png',
+    'full-view/gate/pz.png',
+    'full-view/gate/nz.png',
+  ]))
   const nextScene = useRef<Mesh | null>();
-  const scene2 = useRef(loadScene({ target: { x: 3, y: 0, z: 0 } }));
-  assetMap.set(scene2.current, [
-    '/images/full-view/env2/px.png',
-    '/images/full-view/env2/nx.png',
-    '/images/full-view/env2/ny.png',
-    '/images/full-view/env2/py.png',
-    '/images/full-view/env2/pz.png',
-    '/images/full-view/env2/nz.png',
-  ]);
-  const scene3 = useRef(loadScene({ target: { x: 0, y: 3, z: 0 } }));
-  assetMap.set(scene3.current, [
-    '/images/full-view/env3/px.png',
-    '/images/full-view/env3/nx.png',
-    '/images/full-view/env3/ny.png',
-    '/images/full-view/env3/py.png',
-    '/images/full-view/env3/pz.png',
-    '/images/full-view/env3/nz.png',
-  ]);
+  const scene2 = useRef(loadScene({ target: { x: 0, y: 0, z: -3 } }));
+  assetMap.set(scene2.current, getPublicPath([
+    'full-view/village/px.png',
+    'full-view/village/nx.png',
+    'full-view/village/ny.png',
+    'full-view/village/py.png',
+    'full-view/village/pz.png',
+    'full-view/village/nz.png',
+  ]));
+  const scene3 = useRef(loadScene({ target: { x: 0, y: 3, z: -6 } }));
+  assetMap.set(scene3.current, getPublicPath([
+    'full-view/room/px.png',
+    'full-view/room/nx.png',
+    'full-view/room/ny.png',
+    'full-view/room/py.png',
+    'full-view/room/pz.png',
+    'full-view/room/nz.png',
+  ]));
 
   useEffect(() => {
+    const box = document.querySelector('.full-view');
+    if (box) {
+      box.appendChild(stats.dom);
+      box.appendChild(gui.current.domElement);
+      gui.current.domElement.classList.add('my-gui');
+    }
+    scene1.current.material = loadMaterial(assetMap.get(scene1.current));
+    scene1.current.userData.isInit = true;
+
     const container = document.querySelector('.webgl');
     container?.appendChild(renderer.current.domElement);
     renderer.current.setSize(width, height);
@@ -158,21 +173,18 @@ export default function FullView() {
     const _camera = camera.current;
     const _controls = controls.current;
     const points = pointsMap.get(nextScene);
-    const { x: cX, y: cY, z: cZ } = points.camera;
-    const { x: tX, y: tY, z: tZ } = points.target;
+    const { x: cx, y: cy, z: cz } = points.camera;
+    const { x: tx, y: ty, z: tz } = points.target;
     const { x, y, z } = currentScene.current.position;
-    console.log('xyz', x, y, z);
 
     const segment = new Vector3();
     segment.subVectors(currentScene.current.position, nextScene.position);
     const angleX = segment.angleTo(new Vector3(1, 0, 0));
     const angleY = segment.angleTo(new Vector3(0, 1, 0));
     const angleZ = segment.angleTo(new Vector3(0, 0, 1));
-    const leaveToPoint = { x: 0, y: 0, z: 0 };
-    leaveToPoint.x = Math.cos(angleX);
-    leaveToPoint.y = Math.cos(angleY);
-    leaveToPoint.z = Math.cos(angleZ);
-    console.log(angleX, angleY, angleZ, leaveToPoint, segment.x, segment.y, segment.z);
+    const bx = Math.cos(angleX);
+    const by = Math.cos(angleY);
+    const bz = Math.cos(angleZ);
     
     totalScenes.current.forEach(scene => {
       if (scene !== currentScene.current) {
@@ -182,18 +194,18 @@ export default function FullView() {
 
     const tl = gsap.timeline();
     tl
-      .to(_camera.position, { x, y, z, duration: 1 }, 0)
-      .to(_controls.target, { x: x - leaveToPoint.x, y: y - leaveToPoint.y, z: z - leaveToPoint.z, duration: 1 }, 0)
-      .to(_camera.position, { x: x - leaveToPoint.x, y: y - leaveToPoint.y, z: z - leaveToPoint.z, duration: 1 }, 1)
-      .to(currentScene.current.material, { opacity: 0, duration: 1, onComplete: () => {
-        _controls.target.set(tX, tY, tZ);
-      } }, 1)
-      .to(_camera.position, { x: cX, y: cY, z: cZ, duration: 1 }, 2)
-      .to(nextScene.material, { opacity: 1, duration: 1, onComplete: () => {
+      .to(currentScene.current.material, { opacity: 0, duration: 1 }, 0)
+      .to(_camera.position, { x: x, y: y, z: z, duration: 1 }, 0)
+      .to(_controls.target, { x: x - bx, y: y - by, z: z - bz, duration: 1, onComplete: () => {
+        _camera.position.set(cx, cy, cz);
+        _controls.target.set(tx, ty, tz);
+      } }, 0)
+      .to(nextScene.material, { opacity: 1, duration: 1 }, 1)
+      .to(_controls.target, { x: tx, y: ty, z: tz, duration: 1, onComplete: () => {
         currentScene.current = nextScene;
         _nextScene.current = null;
         isTransfer.current = false;
-      } }, 2);
+      } }, 1)
   }
 
   const handleSwitch = (_nextScene: Mesh) => {
@@ -219,12 +231,12 @@ export default function FullView() {
   }
 
   return (
-    <div>
+    <div className="full-view">
       <div className="webgl" ref={canvasRef}></div>
       <div className={cls('operate')}>
-        <div className={cls('operate-item')} onClick={ () => handleSwitch(scene1.current) }>小区</div>
-        <div className={cls('operate-item')} onClick={ () => handleSwitch(scene2.current) }>电梯间</div>
-        <div className={cls('operate-item')} onClick={ () => handleSwitch(scene3.current) }>屋里</div>
+        <div className={cls('operate-item')} onClick={ () => handleSwitch(scene1.current) }>大门</div>
+        <div className={cls('operate-item')} onClick={ () => handleSwitch(scene2.current) }>小区</div>
+        <div className={cls('operate-item')} onClick={ () => handleSwitch(scene3.current) }>房间</div>
       </div>
       <Progress manager={manager} onFinished={onLoadedScene} />
     </div>

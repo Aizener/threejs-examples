@@ -1,10 +1,7 @@
-import React from 'react'
-import { Outlet } from 'react-router-dom';
-
 export default function Home() {
   return (
     <div>
-      Home
+      学习THREE.JS库，并做一些DEMO来提高这方面技术Thanks♪(･ω･)ﾉ
     </div>
   )
 }

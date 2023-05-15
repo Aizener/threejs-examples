@@ -17,8 +17,8 @@ $primary-color: #4e6ef2;
   left: 0;
   width: 200px;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  z-index: 2;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 11111;
   transition: transform 0.5s;
   &-toggle-btn {
     position: absolute;
@@ -50,7 +50,7 @@ $primary-color: #4e6ef2;
   ul {
     height: 100%;
     color: #fff;
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgb(0, 0, 0, 0.8);
     li {
       padding: 1rem;
       border-bottom: 1px solid #fff;
@@ -72,5 +72,11 @@ $primary-color: #4e6ef2;
 canvas.webgl {
   position: absolute;
   left: 0;
+  top: 0;
+}
+
+.my-gui {
+  position: absolute;
+  right: 0;
   top: 0;
 }
